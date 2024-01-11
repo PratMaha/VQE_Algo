@@ -1,0 +1,40 @@
+# pylint: disable=line-too-long
+import qiskit_nature
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
+from qiskit_nature.second_q.circuit.library import UCCSD
+
+from qiskit.algorithms.optimizers import SPSA
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver, VQEUCCFactory
+from qiskit.primitives.backend_estimator import BackendEstimator
+
+qiskit_nature.settings.use_pauli_sum_op = False  # pylint: disable=undefined-variable
+# pylint: enable=line-too-long
+from qiskit_nature.second_q.drivers import PySCFDriver
+import matplotlib.pyplot as plt
+from qiskit.circuit.library import EfficientSU2
+
+molecule = MoleculeInfo(
+    # Coordinates in Angstrom
+    symbols=["H", "H"],
+    coords=([0.0, 0.0, -0.3625], [0.0, 0.0, 0.3625]),
+    multiplicity=1,
+    charge=0,
+)
+
+driver = PySCFDriver.from_molecule(molecule)
+problem = driver.run()
+second_q_ops = problem.second_q_ops()  # Get 2nd Quant OP
+num_spatial_orbitals = problem.num_spatial_orbitals
+num_particles = problem.num_particles
+mapper = ParityMapper(num_particles=num_particles)  # Set Mapper
+hamiltonian = second_q_ops[0]  # Set Hamiltonian
+#print(hamiltonian)
+# Do two qubit reduction
+qubit_op = mapper.map(hamiltonian)
+print(qubit_op.num_qubits)
+print(qubit_op.coeffs)
+print(qubit_op.paulis)
+print(qubit_op.qargs)
+print(qubit_op.size)
