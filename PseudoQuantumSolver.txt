@@ -1,0 +1,28 @@
+from azure.quantum.qiskit import AzureQuantumProvider
+from qiskit_aer.primitives import Estimator
+from qiskit_nature.second_q.algorithms import NumPyMinimumEigensolverFactory
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver
+
+
+# Connect to the Azure Quantum workspace via a Qiskit provider
+provider = AzureQuantumProvider(
+            resource_id = "/subscriptions/25b00167-5bfa-4e35-b0c9-4799eca3d2e0/resourceGroups/AzureQuantum/providers/Microsoft.Quantum/Workspaces/VariationalEigenSolver",
+            location = "westus")
+
+ionq_sim = provider.get_backend('ionq.simulator')
+quantinuum_sim = provider.get_backend('quantinuum.sim.h1-1e')
+rigetti_sim = provider.get_backend('rigetti.sim.qvm')
+
+# Set the backend you want to use here.
+# WARNING: Quantinuum simulator usage is not unlimited. Running this sample against it could consume a significant amount of your eHQC quota.
+backend_to_use = ionq_sim
+qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction='auto')
+
+spsa_optimizer=SPSA(maxiter=100)
+
+noiseless_estimator = Estimator(approximation=True)
+vqe_solver = VQEUCCFactory(estimator=noiseless_estimator, ansatz=UCCSD(), optimizer=spsa_optimizer)
+calc = GroundStateEigensolver(qubit_converter, vqe_solver)
+q_result = calc.solve(problem)
+
+print(q_result.groundenergy)
