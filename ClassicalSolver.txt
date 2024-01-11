@@ -1,0 +1,8 @@
+from qiskit_nature.second_q.algorithms import NumPyMinimumEigensolverFactory
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver
+
+qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction='auto')
+exact_solver = NumPyMinimumEigensolverFactory()
+calc = GroundStateEigensolver(qubit_converter, exact_solver)
+result = calc.solve(problem)
+print(result.groundenergy)
