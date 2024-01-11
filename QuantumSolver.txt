@@ -1,0 +1,27 @@
+from azure.quantum.qiskit import AzureQuantumProvider
+
+# Connect to the Azure Quantum workspace via a Qiskit provider
+provider = AzureQuantumProvider(
+            resource_id = "/subscriptions/25b00167-5bfa-4e35-b0c9-4799eca3d2e0/resourceGroups/AzureQuantum/providers/Microsoft.Quantum/Workspaces/VariationalEigenSolver",
+            location = "westus")
+
+ionq_sim = provider.get_backend('ionq.simulator')
+quantinuum_sim = provider.get_backend('quantinuum.sim.h1-1e')
+rigetti_sim = provider.get_backend('rigetti.sim.qvm')
+
+# Set the backend you want to use here.
+# WARNING: Quantinuum simulator usage is not unlimited. Running this sample against it could consume a significant amount of your eHQC quota.
+backend_to_use = quantinuum_sim
+
+spsa_optimizer=SPSA(maxiter=10)
+print(molecule)
+backend_estimator = BackendEstimator(backend=backend_to_use, options={ "shots": 1000 })
+vqe_solver = VQEUCCFactory(estimator=backend_estimator, ansatz=UCCSD(), optimizer=spsa_optimizer)
+calc = GroundStateEigensolver(qubit_converter, vqe_solver)
+
+# Wrap the call to solve in a session "with" block so that all jobs submitted by it are grouped together.
+# Learn more about Interactive Hybrid and the Session API at https://aka.ms/AQ/Hybrid/Sessions/Docs
+with backend_to_use.open_session(name="VQE H2") as session:
+    result = calc.solve(problem)
+
+print(result.groundenergy)
